@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharma Shorts</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212; color: #ffffff;
+        }
+        #feed {
+            height: 100vh; overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+        }
+        #feed::-webkit-scrollbar { display: none; }
+        .card {
+            height: 100vh; width: 100%;
+            scroll-snap-align: start;
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 30px; box-sizing: border-box;
+            border-bottom: 1px solid #333;
+        }
+        .title { font-size: 24px; font-weight: bold; margin-bottom: 20px; line-height: 1.3; }
+        .summary { font-size: 18px; line-height: 1.6; color: #e0e0e0; margin-bottom: 30px; }
+        .footer { font-size: 14px; color: #888; margin-top: 20px; }
+        .footer a { color: #4db8ff; text-decoration: none; font-weight: bold; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div id="feed">
+        <div class="card"><div class="title">Loading latest news...</div></div>
+    </div>
+    <script>
+        async function loadNews() {
+            try {
+                // The cache-buster ensures you always get the freshest hour's news
+                const response = await fetch('news.json?' + new Date().getTime());
+                const news = await response.json();
+                const feed = document.getElementById('feed');
+                
+                feed.innerHTML = ''; 
+                
+                news.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="title">${item.title}</div>
+                        <div class="summary">${item.summary}</div>
+                        <div class="footer">
+                            Source: ${item.source} <br><br>
+                            <a href="${item.link}" target="_blank">Tap to read full article</a>
+                        </div>
+                    `;
+                    feed.appendChild(card);
+                });
+            } catch (e) {
+                document.getElementById('feed').innerHTML = '<div class="card"><div class="title">No new updates found. Check back soon.</div></div>';
+            }
+        }
+        loadNews();
+    </script>
+</body>
+</html>
